@@ -1,0 +1,459 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>thinker&#39;s blog | try to thinker,and to be it.</title>
+
+  
+  <meta name="author" content="thinker">
+  
+
+  
+  <meta name="description" content="recorde my web life.">
+  
+
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  
+
+  <meta property="og:site_name" content="thinker&#39;s blog"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="thinker&#39;s blog" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">thinker&#39;s blog</a>
+    </h1>
+    <p class="site-description">try to thinker,and to be it.</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">主页</a></li>
+      
+        <li><a href="/archives">归档</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/06/03/JavaWeb小项目之综合搜索工具（二）：爬虫篇/"><span></span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/06/03/JavaWeb小项目之综合搜索工具（二）：爬虫篇/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-06-03T08:46:57.490Z">
+          2017-06-03
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>关于此项目的后台搜索核心部分就是爬虫了，因为之前没有接触过Java爬虫的编写，因此上网找了一些相关Demo来学习，下边这个博主写的demo很实在也够基础，起码扩展性是非常强的。</p>
+<blockquote>
+<p>  <a href="http://blog.csdn.net/lmj623565791/article/details/23272657" target="_blank" rel="external">http://blog.csdn.net/lmj623565791/article/details/23272657</a></p>
+</blockquote>
+<p>因为此demo只是设置了链接、关键字、和请求类型，但对于爬到的数据没有进行清洗。所以，根据需要，为自己想要的信息使用Jsoup，进行筛选。</p>
+<blockquote>
+<p>  Jsoup-API文档:<a href="http://www.open-open.com/jsoup/" target="_blank" rel="external">http://www.open-open.com/jsoup/</a></p>
+</blockquote>
+<p>边学边用也就大致清楚了，有用过Python的话，其实用法跟BeautifulSoup差不多。</p>
+<p>思路大概如下： > 1.找到目标的标签位置</p>
+<p>如何快速定位目标位置 ？ Tips:<br>在Chrome中，右键单击目标位置->审查元素->右键选中位置->Copy->Copy selector<br>上图</p>
+<p><img src="media/51dac7c3a90ada5ec52ed4da4b1716c6.png" alt="快速定位目标位置.png"></p>
+<p>快速定位目标位置.png</p>
+<p>快速定位目标位置.png</p>
+<blockquote>
+<p>  2.发起数据请求</p>
+</blockquote>
+<p>先分析使用搜索时，对哪个地址发起请求，请求类型是什么（GET / POST)<br>，使用Chrome的NetWork<br>工具进行分析（在搜索结果页面开着Network重新刷新页面便能记录下来）,(已划重点)</p>
+<p><img src="media/6958e771ca99a5f04e3b817f6130e5d2.png" alt="数据请求的信息.png"></p>
+<p>数据请求的信息.png</p>
+<p>数据请求的信息.png</p>
+<p>这里可以看出，是向<br><code>http://www.baikemy.com/search/searchlist</code>发送了<code>POST</code>请求，而且还带着两个参数，title<br>&amp; dataClass。 那么规则类可以这样写</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"> Rule Baikemy_rule = new Rule(</div><div class="line">            &quot;http://www.baikemy.com/search/searchlist&quot;,  </div><div class="line">            new String[] &#123; &quot;title&quot;,&quot;dataClass&quot; &#125;, </div><div class="line">            new String[] &#123; &quot;羟基&quot;,&quot;http://search.baikemy.com/home&quot;&#125;,  </div><div class="line">            &quot;div.ssjgye_nav &gt; div.ssjgye_left &quot;, </div><div class="line">            Rule.SELECTION, </div><div class="line">            Rule.POST</div><div class="line">);</div></pre></td></tr></table></figure>
+<blockquote>
+<p>  3.数据的清洗</p>
+</blockquote>
+<p>以Baikemy_rule发起请求，将获得Response的Document进行数据的筛选与输出。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public static  void SelectData_Baikemy(Element item, List&lt;LinkTypeData&gt; datas)&#123;</div><div class="line"></div><div class="line">    try &#123;</div><div class="line">        //疾病百科下的第一个a标签就是疾病的目标链接</div><div class="line">        Element link = item.getElementsByTag(&quot;a&quot;).get(0);</div><div class="line">        String link_href = &quot;http://www.baikemy.com&quot; + link.attr(&quot;href&quot;);</div><div class="line">        String link_text = link.text();</div><div class="line"></div><div class="line">        //疾病百科下的第二个p标签就是描述疾病详情的内容</div><div class="line">        Element details = item.getElementsByTag(&quot;p&quot;).get(1);</div><div class="line">        String details_text = details.text();</div><div class="line"></div><div class="line">        LinkTypeData data = new LinkTypeData();</div><div class="line">        data.setLinkHref(link_href);</div><div class="line">        data.setLinkText(link_text);</div><div class="line">        data.setSummary(details_text);</div><div class="line"></div><div class="line">        //添加该元素到List集合中</div><div class="line">        datas.add(data);</div><div class="line">    &#125;catch (RuntimeException e)&#123;</div><div class="line">        e.printStackTrace();</div><div class="line">        System.out.println(&quot;没有找到搜索结果&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>  4.封装成一个对象输出</p>
+</blockquote>
+<p>此处把得到的数据以一个对象的形式输出，也方便后面把此对象封装成一个JSON结构。</p>
+<p><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><br>            for (Element result : results){</p>
+<pre><code>    Elements targets_jbkx=result.getElementsByClass(&quot;ssjgye_jbkx&quot;);
+    Elements targets_yyjs=result.getElementsByClass(&quot;ssjgye_yyjs&quot;);
+    Elements targets_lsjl=result.getElementsByClass(&quot;ssjgye_lsjl&quot;);
+
+    //疾病百科
+    for (Element target_jbkx : targets_jbkx){
+        SelectData_Baikemy(target_jbkx,baike_datas);
+    }
+
+    //医患问答
+    for (Element target_yyjs:targets_yyjs){
+        SelectData_Baikemy(target_yyjs,wenda_datas);
+    }
+
+    //科普
+    for (Element target_lsjl:targets_lsjl){
+        SelectData_Baikemy(target_lsjl,kepu_datas);
+    }
+}
+//三个List汇总为一个对象
+Summary_datas=new Link_Items(baike_datas,wenda_datas,kepu_datas);
+</code></pre>
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/06/03/JavaWeb小项目之综合搜索工具（一）：前端篇/"><span></span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/06/03/JavaWeb小项目之综合搜索工具（一）：前端篇/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-06-03T08:46:57.480Z">
+          2017-06-03
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <blockquote>
+<p>  前言: 本项目是写一个类似于综合搜索一样的网页。<br>  输入一个关键词，然后把此关键词分发到各个搜索引擎之中获得结果，<br>  并将其在网页中显示出来。<br>  后台采用了Java语言来实现，本来用nodejs或python语言会很方便，但因为有个Java实训要做，反正语言只是工具，思路才是重点。<br>  主要是练习JavaWeb，所以前端篇会简要提一下，代码的下载放于文末。<br>  Ps:关于数据来源，权当是练手，所以目前这一个版本只采用了“百科名医”网站的站内搜索结果。</p>
+</blockquote>
+<h3 id="设计："><a href="#设计：" class="headerlink" title="设计："></a>设计：</h3><p>没有怎么特别设计，就瞎弄。<br>由于蓝色、绿色之类的安全色看的有点腻，遂用了一点少女心的渐变色。<br>配色丑不丑的话，个人主观性太强，我也是瞎设计，改了好几次，也就这样了。如果觉得难看可以自己改。</p>
+<blockquote>
+<p>  如果自己不会设计渐变，那么去哪找好看的渐变色？<br>  附上一家提供180种渐变配色灵感的网站： <a href="https://webgradients.com/" target="_blank" rel="external">https://webgradients.com/</a></p>
+</blockquote>
+<p>我用的是这个</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">html&#123;</div><div class="line">    background-image: linear-gradient(-20deg, #f794a4 0%, #fdd6bd 100%);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后最终成品的效果图如下：</p>
+<p><img src="media/e4b58920dc79dd87ef8a0bb26d833b1e.png" alt="前端页面效果图.png"></p>
+<p>前端页面效果图.png</p>
+<p><img src="media/54fb05975d3669c3e0885a2a23da5da2.png" alt="搜索.png"></p>
+<p>搜索.png</p>
+<h1 id="前后端交互部分"><a href="#前后端交互部分" class="headerlink" title="前后端交互部分"></a>前后端交互部分</h1><p>这里是沟通前后端的桥梁与媒介，重点写一下：</p>
+<blockquote>
+<p>  1.事件监听</p>
+</blockquote>
+<p>监听Search按钮的点击事件，以及监听Input输入框有变化的时候，触发SendAjax</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">//按钮,搜索框的事件监听</div><div class="line">$(&quot;#btn_search&quot;).click(function()&#123;</div><div class="line">    sendAjax();</div><div class="line">&#125;);</div><div class="line"></div><div class="line">$(&quot;#input_search&quot;).on(&quot;input&quot;,function()&#123;</div><div class="line">    //监听input的值是否产生变化</div><div class="line">    //如果是使用了输入法，input的值会出现一个空格，会触发一次</div><div class="line">    //所以要在sendAjax()中加入检查</div><div class="line">    sendAjax();</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<blockquote>
+<p>  2.sendAjax()</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">function sendAjax()&#123;</div><div class="line"></div><div class="line">    search_text=$(&quot;#input_search&quot;).val();</div><div class="line">    </div><div class="line">    //检查是否输入搜索内容</div><div class="line">    //如果是使用了输入法，input的值会出现一个空格，会触发一次</div><div class="line">    if(search_text==&quot;&quot;||search_text==&quot; &quot;)&#123;</div><div class="line"></div><div class="line">        console.log(&quot;enter value is null&quot;);</div><div class="line"></div><div class="line">    &#125;else&#123;</div><div class="line">        $.ajax(&#123;</div><div class="line">            type:&quot;GET&quot;,</div><div class="line">            dataType:&quot;json&quot;,</div><div class="line">            // 地址填上服务器的IP</div><div class="line">            url:&quot;http://localhost:8080/api/search/getArticle/&quot;+search_text,</div><div class="line">            beforeSend:function()&#123;</div><div class="line">                OpenAlertInfo(false);   //关闭错误提示</div><div class="line">                rmAlertNotFound();      //关闭上次未找到结果的提示</div><div class="line">                addLoadingAnim();       //加载Loading动画</div><div class="line">            &#125;,</div><div class="line">            success:function(data)&#123;</div><div class="line">                // console.log(data);</div><div class="line"></div><div class="line">                //////////////////////////</div><div class="line">                // 为了让结果更快显示，先添加后执行其他任务 //</div><div class="line">                //////////////////////////</div><div class="line">                </div><div class="line">                addResult_item(data);   //添加搜索结果到页面</div><div class="line">                rmLoadingAnim();        //移除Loading动画   </div><div class="line">                CheckHasResult();       //对结果检查，没有则显示“未找到结果”的提示</div><div class="line"></div><div class="line">            &#125;,</div><div class="line">            error:function(XMLHttpRequest, textStatus, errorThrown)&#123;</div><div class="line">                // 请求没有成功的处理</div><div class="line">                rmLoadingAnim();        //移除Loading动画</div><div class="line">                OpenAlertInfo(true);    //显示未连接到服务器的错误提示</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>  3.解析服务器返回来的JSON data数据</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">function addResult_item(data) &#123;</div><div class="line">    //添加动画效果，使得搜索框上移，出现分割线</div><div class="line">    moveSearchUp();</div><div class="line">    $(&quot;.divider&quot;).addClass(&quot;Anim_DownSlideUp&quot;);</div><div class="line"></div><div class="line">    //在显示新的结果之前，清空上次搜索结果</div><div class="line">    $(&quot;.result_group&quot;).empty();</div><div class="line"></div><div class="line">    // 对JSON数据进行遍历解析</div><div class="line">    var all_datas_JSON=data;</div><div class="line"></div><div class="line">    for(var bwk in all_datas_JSON)&#123;</div><div class="line"></div><div class="line">        // console.log(all_datas_JSON[bwk]);        //bwk是三个对象(baike_datas...) 的名字(string)</div><div class="line"></div><div class="line">        for(var element_i in all_datas_JSON[bwk])&#123;              //element_i是bwk对象中元素的名字</div><div class="line"></div><div class="line">            // console.log(all_datas_JSON[bwk][element_i]);         //返回一个Object(&quot;id&quot;,&quot;linkHref&quot;,&quot;linkText&quot;)</div><div class="line"></div><div class="line"></div><div class="line">            var linkText=all_datas_JSON[bwk][element_i].linkText;   //文章名称</div><div class="line">            var linkHref=all_datas_JSON[bwk][element_i].linkHref;   //文章链接</div><div class="line">            var summary=all_datas_JSON[bwk][element_i].summary;     //文章摘要</div><div class="line"></div><div class="line">            // 用Js动态生成结果，DOM的创建操作</div><div class="line">            $(&quot;.result_group&quot;).append([&quot;&lt;div class=\&quot;result_item\&quot;&gt;&quot;,</div><div class="line">            &quot;           &lt;div class=\&quot;item_header\&quot;&gt;&quot;,</div><div class="line">            &quot;               &lt;p class=\&quot;item_text\&quot;&gt;&lt;a href=&quot;+linkHref+&quot;&gt;&quot;+linkText+&quot;&lt;/a&gt;&lt;/p&gt;&quot;,</div><div class="line">            &quot;           &lt;/div&gt;&quot;,</div><div class="line">            &quot;           &lt;div class=\&quot;item_body\&quot;&gt;&quot;,</div><div class="line">            &quot;               &lt;p class=\&quot;item_text\&quot;&gt;&quot;+summary+&quot;&lt;/p&gt;&quot;,</div><div class="line">            &quot;           &lt;/div&gt;&quot;,</div><div class="line">            &quot;           &lt;div class=\&quot;item_footer\&quot;&gt;&quot;,</div><div class="line">            &quot;               &lt;p class=\&quot;item_text\&quot;&gt;&lt;/p&gt;&quot;,</div><div class="line">            &quot;           &lt;/div&gt;&quot;,</div><div class="line">            &quot;&lt;/div&gt;&quot;].join(&quot;&quot;));</div><div class="line"></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>使用Js来生成HTML DOM的话，手动加双引号简直反人类，你可以使用<br><a href="http://tool.chinaz.com/tools/jsformat.aspx" target="_blank" rel="external">站长工具-JS/HTML格式化</a></p>
+<p>记得SublimeText也有这么个插件，不过名字我倒是忘了，自己上去找找</p>
+<p>大概的坑就这么多。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/06/03/JavaWeb小项目之综合搜索工具（三）：创建RESTful服务篇/"><span></span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/06/03/JavaWeb小项目之综合搜索工具（三）：创建RESTful服务篇/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-06-03T08:46:57.440Z">
+          2017-06-03
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <ol>
+<li><p>使用前端的JQuery框架，发起Ajax 请求一个API，然后获得JSON数据，在前端处解析处理。（具体代码可以去 <a href="http://www.jianshu.com/p/2cc6acf04386" target="_blank" rel="external">JavaWeb小项目之综合搜索工具（一）：前端篇</a> 文章底部查看。）</p>
+</li>
+<li><p>这篇文章的目的就是构建一个API，此API的目的就是获得爬虫爬到的信息。</p>
+</li>
+<li><p>找了许多框架，根据综合分析之后呢，为了降低构建难度，还是选择了Jersey框架。</p>
+</li>
+</ol>
+<hr>
+<p>#什么是RESTful</p>
+<blockquote>
+<p><i>相关阅读:</i><br>网上说的较好的有这两篇，看完大概就差不多了<br><a href="https://sanwen8.cn/p/2ddcbVD.html" target="_blank" rel="external">深入浅出RESTful API设计，小白也能看懂</a><br><a href="http://www.ruanyifeng.com/blog/2014/05/restful_api.html" target="_blank" rel="external">这里有一篇阮大写的 RESTful API 设计指南</a></p>
+</blockquote>
+<p>我说下简单的见解，也就是服务器给出一个目标地址（以一个url链接充当的API），当你发送 GET/POST/…之类的请求到此链接（即API）时，服务器会监听此链接所接受到的任何请求，然后执行你所写的逻辑代码。其实也就是java Servlet的知识内容。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/4666195-9b42a629d12142a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="来自知乎的回答.png"></p>
+<p>#快速构建RESTful</p>
+<blockquote>
+<p><em>相关阅读</em><br>读完这三篇基本思路就清楚了<br><a href="http://blog.csdn.net/kkkloveyou/article/details/21391033" target="_blank" rel="external">用Jersey构建RESTful服务1–HelloWorld</a><br><a href="http://www.tuicool.com/articles/IfUb6vb" target="_blank" rel="external">使用<em>Jersey</em>创建RESTful服务 - 推酷</a><br><a href="http://www.jianshu.com/p/42a263d655c6" target="_blank" rel="external">IntelliJ 创建Tomcat + <em>Jersey</em> Restful 工程</a></p>
+</blockquote>
+<p>我使用IntelliJ 来构建的，其中碰到了一些坑，坑了一两天。差点吐血。</p>
+<blockquote>
+<p>第一个坑：IntelliJ 默认的RESTful工程模板创建后一旦修改就会报错</p>
+</blockquote>
+<p>使用IntelliJ直接创建的RESTful Web Service跑起来没问题，但是一旦使用了爬虫的方法就报错！！哪怕是把爬虫的相关代码全部删除之后，还原到之前能跑状态的代码，依旧报错啊，卧槽了。硬生生是Debug不知多少个小时，感谢下面这篇文章解决了我的问题。</p>
+<p><em>[IntelliJ 创建Tomcat + </em>Jersey<em> Restful 工程](<a href="http://www.jianshu.com/p/42a263d655c6" target="_blank" rel="external">http://www.jianshu.com/p/42a263d655c6</a>)</em></p>
+<blockquote>
+<p>第二个坑：导入爬虫模块后，找不到该模块</p>
+</blockquote>
+<p>那是因为没有在Artifacts中把把项目依赖的lib发布到WEB-INFO/lib下<br><img src="http://upload-images.jianshu.io/upload_images/4666195-b4e494dee9217b55.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Artifacts_WEB-INF"></p>
+<p>#本项目的依赖</p>
+<blockquote>
+<p>使用maven来解决项目依赖：</p>
+</blockquote>
+<p>pom.xml文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</div><div class="line">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;</div><div class="line">         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</div><div class="line">         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;</div><div class="line">    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;</div><div class="line"></div><div class="line">    &lt;groupId&gt;com.hjg.test&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;search_back_end&lt;/artifactId&gt;</div><div class="line">    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;</div><div class="line"></div><div class="line">    &lt;dependencies&gt;</div><div class="line">        &lt;dependency&gt;</div><div class="line">            &lt;groupId&gt;org.glassfish.jersey.containers&lt;/groupId&gt;</div><div class="line">            &lt;artifactId&gt;jersey-container-servlet&lt;/artifactId&gt;</div><div class="line">            &lt;version&gt;2.22.2&lt;/version&gt;</div><div class="line">        &lt;/dependency&gt;</div><div class="line"></div><div class="line">        &lt;dependency&gt;</div><div class="line">            &lt;groupId&gt;com.sun.jersey&lt;/groupId&gt;</div><div class="line">            &lt;artifactId&gt;jersey-json&lt;/artifactId&gt;</div><div class="line">            &lt;version&gt;1.18&lt;/version&gt;</div><div class="line">        &lt;/dependency&gt;</div><div class="line">    &lt;/dependencies&gt;</div><div class="line">    </div><div class="line">&lt;/project&gt;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>为Servlet程序注册入口</p>
+</blockquote>
+<p>web.xml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</div><div class="line">&lt;web-app xmlns=&quot;http://xmlns.jcp.org/xml/ns/javaee&quot;</div><div class="line">         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</div><div class="line">         xsi:schemaLocation=&quot;http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd&quot;</div><div class="line">         version=&quot;3.1&quot;&gt;</div><div class="line">    &lt;servlet&gt;</div><div class="line">        &lt;servlet-name&gt;JAX-RS Servlet&lt;/servlet-name&gt;</div><div class="line">        &lt;servlet-class&gt;org.glassfish.jersey.servlet.ServletContainer&lt;/servlet-class&gt;</div><div class="line">        &lt;init-param&gt;</div><div class="line">            &lt;!--&lt;param-name&gt;jersey.config.server.provider.packages&lt;/param-name&gt;--&gt;</div><div class="line">            &lt;!--&lt;param-value&gt;com.hjg.test&lt;/param-value&gt;--&gt;</div><div class="line"></div><div class="line">            &lt;param-name&gt;javax.ws.rs.Application&lt;/param-name&gt;</div><div class="line">            &lt;param-value&gt;com.hjg.test.RestApplication&lt;/param-value&gt;</div><div class="line">        &lt;/init-param&gt;</div><div class="line">        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;</div><div class="line">    &lt;/servlet&gt;</div><div class="line">    &lt;servlet-mapping&gt;</div><div class="line">        &lt;servlet-name&gt;JAX-RS Servlet&lt;/servlet-name&gt;</div><div class="line">        &lt;url-pattern&gt;/api/*&lt;/url-pattern&gt;</div><div class="line">    &lt;/servlet-mapping&gt;</div><div class="line">&lt;/web-app&gt;</div></pre></td></tr></table></figure></p>
+<p>com.hjg.test下的RestApplication.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">package com.hjg.test;</div><div class="line"></div><div class="line"></div><div class="line">import org.codehaus.jackson.jaxrs.JacksonJsonProvider;</div><div class="line">import org.glassfish.jersey.server.ResourceConfig;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Created by thinkerer on 2017/3/29.</div><div class="line"> */</div><div class="line">public class RestApplication extends ResourceConfig&#123;</div><div class="line">    public RestApplication()&#123;</div><div class="line">        //服务类所在的包路径</div><div class="line">        packages(&quot;com.hjg.test.resources&quot;);</div><div class="line">        </div><div class="line">        //注册JSON转换器</div><div class="line">        register(JacksonJsonProvider.class);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>通过在<figure class="highlight plain"><figcaption><span>"com.hjg.test.resources"```下的```UserResource.java```来处理接收请求后的逻辑</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">处理的逻辑代码如下：</div></pre></td></tr></table></figure></p>
+<pre><code>@GET
+@Path(&quot;/getArticle/{search_param}&quot;)
+@Produces(MediaType.APPLICATION_JSON)
+public Link_Items getArticle(@PathParam(&quot;search_param&quot;) String search_param){
+    Link_Items re=null;
+    if (search_param==null||search_param==&quot;&quot;){
+    //todo
+    }else {
+        testSplider a = new testSplider();
+         re= a.getDatasByClass(search_param);
+}
+    return re;
+    //此处框架会把此对象直接转为JSON对象传回前端
+}
+</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">到这一步大致就已经解决了基本问题，我所做的API是:</div><div class="line">```http://localhost:8080/api/search/getArticle/```+```参数(搜索的内容)</div></pre></td></tr></table></figure>
+<p>运行Tomcat，注意端口号是否被占用。</p>
+<blockquote>
+<p>项目完整代码：<br><a href="https://coding.net/u/thinker_er/p/JavaWebDemo_Search_DEMO/git" target="_blank" rel="external">https://coding.net/u/thinker_er/p/JavaWebDemo_Search_DEMO/git</a></p>
+</blockquote>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/06/03/Test-中文/"><span>Test 中文</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/06/03/Test-中文/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-06-03T08:46:04.000Z">
+          2017-06-03
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/06/03/hello-world/"><span>Hello World</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/06/03/hello-world/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-06-03T08:35:17.000Z">
+          2017-06-03
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+
+<nav class="pagination">
+  
+  
+</nav>
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2017 thinker
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>

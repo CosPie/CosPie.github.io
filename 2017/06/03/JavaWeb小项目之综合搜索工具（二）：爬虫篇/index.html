@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>thinker&#39;s blog | try to thinker,and to be it.</title>
+
+  
+  <meta name="author" content="thinker">
+  
+
+  
+  <meta name="description" content="recorde my web life.">
+  
+
+  
+  
+  <meta name="keywords" content="">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  
+
+  <meta property="og:site_name" content="thinker&#39;s blog"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="thinker&#39;s blog" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">thinker&#39;s blog</a>
+    </h1>
+    <p class="site-description">try to thinker,and to be it.</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">主页</a></li>
+      
+        <li><a href="/archives">归档</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span></span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/06/03/JavaWeb小项目之综合搜索工具（二）：爬虫篇/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-06-03T08:46:57.490Z">
+          2017-06-03
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>关于此项目的后台搜索核心部分就是爬虫了，因为之前没有接触过Java爬虫的编写，因此上网找了一些相关Demo来学习，下边这个博主写的demo很实在也够基础，起码扩展性是非常强的。</p>
+<blockquote>
+<p>  <a href="http://blog.csdn.net/lmj623565791/article/details/23272657" target="_blank" rel="external">http://blog.csdn.net/lmj623565791/article/details/23272657</a></p>
+</blockquote>
+<p>因为此demo只是设置了链接、关键字、和请求类型，但对于爬到的数据没有进行清洗。所以，根据需要，为自己想要的信息使用Jsoup，进行筛选。</p>
+<blockquote>
+<p>  Jsoup-API文档:<a href="http://www.open-open.com/jsoup/" target="_blank" rel="external">http://www.open-open.com/jsoup/</a></p>
+</blockquote>
+<p>边学边用也就大致清楚了，有用过Python的话，其实用法跟BeautifulSoup差不多。</p>
+<p>思路大概如下： > 1.找到目标的标签位置</p>
+<p>如何快速定位目标位置 ？ Tips:<br>在Chrome中，右键单击目标位置->审查元素->右键选中位置->Copy->Copy selector<br>上图</p>
+<p><img src="media/51dac7c3a90ada5ec52ed4da4b1716c6.png" alt="快速定位目标位置.png"></p>
+<p>快速定位目标位置.png</p>
+<p>快速定位目标位置.png</p>
+<blockquote>
+<p>  2.发起数据请求</p>
+</blockquote>
+<p>先分析使用搜索时，对哪个地址发起请求，请求类型是什么（GET / POST)<br>，使用Chrome的NetWork<br>工具进行分析（在搜索结果页面开着Network重新刷新页面便能记录下来）,(已划重点)</p>
+<p><img src="media/6958e771ca99a5f04e3b817f6130e5d2.png" alt="数据请求的信息.png"></p>
+<p>数据请求的信息.png</p>
+<p>数据请求的信息.png</p>
+<p>这里可以看出，是向<br><code>http://www.baikemy.com/search/searchlist</code>发送了<code>POST</code>请求，而且还带着两个参数，title<br>&amp; dataClass。 那么规则类可以这样写</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"> Rule Baikemy_rule = new Rule(</div><div class="line">            &quot;http://www.baikemy.com/search/searchlist&quot;,  </div><div class="line">            new String[] &#123; &quot;title&quot;,&quot;dataClass&quot; &#125;, </div><div class="line">            new String[] &#123; &quot;羟基&quot;,&quot;http://search.baikemy.com/home&quot;&#125;,  </div><div class="line">            &quot;div.ssjgye_nav &gt; div.ssjgye_left &quot;, </div><div class="line">            Rule.SELECTION, </div><div class="line">            Rule.POST</div><div class="line">);</div></pre></td></tr></table></figure>
+<blockquote>
+<p>  3.数据的清洗</p>
+</blockquote>
+<p>以Baikemy_rule发起请求，将获得Response的Document进行数据的筛选与输出。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public static  void SelectData_Baikemy(Element item, List&lt;LinkTypeData&gt; datas)&#123;</div><div class="line"></div><div class="line">    try &#123;</div><div class="line">        //疾病百科下的第一个a标签就是疾病的目标链接</div><div class="line">        Element link = item.getElementsByTag(&quot;a&quot;).get(0);</div><div class="line">        String link_href = &quot;http://www.baikemy.com&quot; + link.attr(&quot;href&quot;);</div><div class="line">        String link_text = link.text();</div><div class="line"></div><div class="line">        //疾病百科下的第二个p标签就是描述疾病详情的内容</div><div class="line">        Element details = item.getElementsByTag(&quot;p&quot;).get(1);</div><div class="line">        String details_text = details.text();</div><div class="line"></div><div class="line">        LinkTypeData data = new LinkTypeData();</div><div class="line">        data.setLinkHref(link_href);</div><div class="line">        data.setLinkText(link_text);</div><div class="line">        data.setSummary(details_text);</div><div class="line"></div><div class="line">        //添加该元素到List集合中</div><div class="line">        datas.add(data);</div><div class="line">    &#125;catch (RuntimeException e)&#123;</div><div class="line">        e.printStackTrace();</div><div class="line">        System.out.println(&quot;没有找到搜索结果&quot;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>  4.封装成一个对象输出</p>
+</blockquote>
+<p>此处把得到的数据以一个对象的形式输出，也方便后面把此对象封装成一个JSON结构。</p>
+<p><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><del>~</del><br>            for (Element result : results){</p>
+<pre><code>    Elements targets_jbkx=result.getElementsByClass(&quot;ssjgye_jbkx&quot;);
+    Elements targets_yyjs=result.getElementsByClass(&quot;ssjgye_yyjs&quot;);
+    Elements targets_lsjl=result.getElementsByClass(&quot;ssjgye_lsjl&quot;);
+
+    //疾病百科
+    for (Element target_jbkx : targets_jbkx){
+        SelectData_Baikemy(target_jbkx,baike_datas);
+    }
+
+    //医患问答
+    for (Element target_yyjs:targets_yyjs){
+        SelectData_Baikemy(target_yyjs,wenda_datas);
+    }
+
+    //科普
+    for (Element target_lsjl:targets_lsjl){
+        SelectData_Baikemy(target_lsjl,kepu_datas);
+    }
+}
+//三个List汇总为一个对象
+Summary_datas=new Link_Items(baike_datas,wenda_datas,kepu_datas);
+</code></pre>
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2017 thinker
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>
